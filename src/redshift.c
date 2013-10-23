@@ -53,8 +53,9 @@
 
 #if !(defined(ENABLE_RANDR) ||			\
       defined(ENABLE_VIDMODE) ||		\
-      defined(ENABLE_WINGDI))
-# error "At least one of RANDR, VidMode or WinGDI must be enabled."
+      defined(ENABLE_WINGDI) ||			\
+      defined(ENABLE_QUARTZ))
+# error "At least one of RANDR, VidMode, WinGDI, or Quartz must be enabled."
 #endif
 
 #ifdef ENABLE_RANDR
@@ -67,6 +68,10 @@
 
 #ifdef ENABLE_WINGDI
 # include "gamma-w32gdi.h"
+#endif
+
+#ifdef ENABLE_QUARTZ
+# include "gamma-quartz.h"
 #endif
 
 
@@ -91,6 +96,9 @@ typedef union {
 #endif
 #ifdef ENABLE_WINGDI
 	w32gdi_state_t w32gdi;
+#endif
+#ifdef ENABLE_QUARTZ
+	quartz_state_t quartz;
 #endif
 } gamma_state_t;
 
@@ -131,6 +139,18 @@ static const gamma_method_t gamma_methods[] = {
 		(gamma_method_set_option_func *)w32gdi_set_option,
 		(gamma_method_restore_func *)w32gdi_restore,
 		(gamma_method_set_temperature_func *)w32gdi_set_temperature
+	},
+#endif
+#ifdef ENABLE_QUARTZ
+	{
+		"quartz",
+		(gamma_method_init_func *)quartz_init,
+		(gamma_method_start_func *)quartz_start,
+		(gamma_method_free_func *)quartz_free,
+		(gamma_method_print_help_func *)quartz_print_help,
+		(gamma_method_set_option_func *)quartz_set_option,
+		(gamma_method_restore_func *)quartz_restore,
+		(gamma_method_set_temperature_func *)quartz_set_temperature
 	},
 #endif
 	{ NULL }

@@ -22,6 +22,8 @@
 
 #include <stdint.h>
 
+void get_coefficient(float coeff[3], int temp, float brightness);
+
 void colorramp_fill(uint16_t *gamma_r, uint16_t *gamma_g, uint16_t *gamma_b,
 		    int size, int temp, float brightness, float gamma[3]);
 

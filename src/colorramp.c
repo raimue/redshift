@@ -281,8 +281,7 @@ interpolate_color(float a, const float *c1, const float *c2, float *c)
 }
 
 void
-colorramp_fill(uint16_t *gamma_r, uint16_t *gamma_g, uint16_t *gamma_b,
-	       int size, int temp, float brightness, float gamma[3])
+get_coefficient(float coeff[3], int temp, float brightness)
 {
 	/* Approximate white point */
 	float white_point[3];
@@ -291,12 +290,24 @@ colorramp_fill(uint16_t *gamma_r, uint16_t *gamma_g, uint16_t *gamma_b,
 	interpolate_color(alpha, &blackbody_color[temp_index],
 			  &blackbody_color[temp_index+3], white_point);
 
+	coeff[0] = brightness * white_point[0];
+	coeff[1] = brightness * white_point[1];
+	coeff[2] = brightness * white_point[2];
+}
+
+void
+colorramp_fill(uint16_t *gamma_r, uint16_t *gamma_g, uint16_t *gamma_b,
+	       int size, int temp, float brightness, float gamma[3])
+{
+	float coeff[3];
+	get_coefficient(coeff, temp, brightness);
+
 	for (int i = 0; i < size; i++) {
 		gamma_r[i] = pow((float)i/size, 1.0/gamma[0]) *
-			(UINT16_MAX+1) * brightness * white_point[0];
+			(UINT16_MAX+1) * coeff[0];
 		gamma_g[i] = pow((float)i/size, 1.0/gamma[1]) *
-			(UINT16_MAX+1) * brightness * white_point[1];
+			(UINT16_MAX+1) * coeff[1];
 		gamma_b[i] = pow((float)i/size, 1.0/gamma[2]) *
-			(UINT16_MAX+1) * brightness * white_point[2];
+			(UINT16_MAX+1) * coeff[2];
 	}
 }

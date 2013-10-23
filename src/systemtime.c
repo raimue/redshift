@@ -20,7 +20,11 @@
 #include <stdio.h>
 
 #ifndef _WIN32
-# include <time.h>
+# ifndef HAVE_CLOCK_GETTIME
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
 #endif
 
 #include "systemtime.h"
@@ -29,6 +33,7 @@ int
 systemtime_get_time(double *t)
 {
 #ifndef _WIN32
+# ifdef HAVE_CLOCK_GETTIME
 	struct timespec now;
 	int r = clock_gettime(CLOCK_REALTIME, &now);
 	if (r < 0) {
@@ -37,6 +42,16 @@ systemtime_get_time(double *t)
 	}
 
 	*t = now.tv_sec + (now.tv_nsec / 1000000000.0);
+# else
+	struct timeval now;
+	int r = gettimeofday(&now, NULL);
+	if (r < 0) {
+		perror("gettimeofday");
+		return -1;
+	}
+
+	*t = now.tv_sec + (now.tv_usec / 1000000.0);
+# endif
 #else /* _WIN32 */
 	FILETIME now;
 	ULARGE_INTEGER i;

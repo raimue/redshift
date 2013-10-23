@@ -26,6 +26,7 @@ EXTRA_redshift_SOURCES = \
 AM_CFLAGS =
 redshift_LDADD = @LIBINTL@
 EXTRA_DIST =
+redshift_LDFLAGS =
 
 if ENABLE_RANDR
 redshift_SOURCES += gamma-randr.c gamma-randr.h
@@ -46,6 +47,11 @@ endif
 if ENABLE_WINGDI
 redshift_SOURCES += gamma-w32gdi.c gamma-w32gdi.h
 redshift_LDADD += -lgdi32
+endif
+
+if ENABLE_QUARTZ
+redshift_SOURCES += gamma-quartz.c gamma-quartz.h
+redshift_LDFLAGS += -framework CoreGraphics
 endif
 
 if ENABLE_GNOME_CLOCK
