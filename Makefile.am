@@ -23,6 +23,9 @@ _UBUNTU_MONO_LIGHT_FILES = \
 _DESKTOP_FILES = \
 	data/applications/redshift-gtk.desktop
 
+DBUS_SERVICE_IN_FILES = \
+	data/dbus-1/services/dk.jonls.redshift.Redshift.service.in
+
 
 # Icons
 if ENABLE_GUI
@@ -48,12 +51,26 @@ endif
 # man page
 dist_man1_MANS = redshift.1
 
+
+# D-Bus service file
+if ENABLE_DBUS
+dbus_servicedir = @datadir@/dbus-1/services
+dbus_service_DATA = $(DBUS_SERVICE_IN_FILES:.service.in=.service)
+endif
+
+$(dbus_service_DATA): $(DBUS_SERVICE_IN_FILES) Makefile
+	$(AM_V_GEN)$(MKDIR_P) $(@D) && \
+		sed -e "s|\@libexecdir\@|$(libexecdir)|" $< > $@
+
+
 EXTRA_DIST = \
 	$(EXTRA_ROOTDOC_FILES) \
 	$(_HICOLOR_FILES) \
 	$(_UBUNTU_MONO_DARK_FILES) \
 	$(_UBUNTU_MONO_LIGHT_FILES) \
-	$(_DESKTOP_FILES)
+	$(_DESKTOP_FILES) \
+	$(DBUS_SERVICE_IN_FILES)
+
 
 # Update PO translations
 .PHONY: update-po
