@@ -10,6 +10,7 @@ BuildRequires: gettext-devel
 BuildRequires: libXrandr-devel
 BuildRequires: libXxf86vm-devel
 BuildRequires: geoclue-devel
+BuildRequires: glib2 >= 2.26.0
 
 %description
 Redshift adjusts the color temperature of your screen according to your
@@ -42,7 +43,7 @@ temperature adjustment program.
 %setup -q
 
 %build
-%configure --enable-gui --enable-geoclue --enable-randr --enable-vidmode
+%configure --libexecdir=%{_libexecdir}/%{name} --enable-gui --enable-geoclue --enable-randr --enable-vidmode --enable-dbus
 make %{?_smp_mflags} V=1
 
 %install
@@ -67,7 +68,9 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 %defattr(-,root,root,-)
 %doc COPYING NEWS README README-colorramp
 %{_bindir}/redshift
+%{_libexecdir}/%{name}/redshift-dbus
 %{_mandir}/man1/*
+%{_datadir}/dbus-1/services/dk.jonls.redshift.Redshift.service
 
 %files -n %{name}-gtk
 %defattr(-,root,root,-)
