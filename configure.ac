@@ -16,6 +16,9 @@ AC_PROG_CC_C99
 AM_GNU_GETTEXT_VERSION([0.17])
 AM_GNU_GETTEXT([external])
 
+m4_ifndef([PKG_CHECK_MODULES],
+	AC_DEFUN([PKG_CHECK_MODULES], [$4]))
+
 PKG_CHECK_MODULES([X11], [x11], [have_x11=yes], [have_x11=no])
 PKG_CHECK_MODULES([XF86VM], [xxf86vm], [have_xf86vm=yes], [have_xf86vm=no])
 PKG_CHECK_MODULES([XCB], [xcb], [have_xcb=yes], [have_xcb=no])
@@ -25,6 +28,8 @@ PKG_CHECK_MODULES([XCB_RANDR], [xcb-randr],
 PKG_CHECK_MODULES([GEOCLUE], [geoclue], [have_geoclue=yes], [have_geoclue=no])
 
 AC_CHECK_HEADER([windows.h], [have_windows_h=yes], [have_windows_h=no])
+
+AC_CHECK_HEADER([CoreGraphics/CGDirectDisplay.h], [have_coregraphics=yes], [have_coregraphics=no])
 
 # Check for Python
 AM_PATH_PYTHON([3.3], [have_python=yes], [have_python=no])
@@ -101,6 +106,29 @@ AS_IF([test "x$enable_wingdi" != xno], [
 ])
 AM_CONDITIONAL([ENABLE_WINGDI], [test "x$enable_wingdi" = xyes])
 
+# Check Mac OS X Quartz method
+AC_MSG_CHECKING([whether to enable Quartz Display Services method])
+AC_ARG_ENABLE([quartz], [AC_HELP_STRING([--enable-quartz],
+	[enable Quartz Display Services method])],
+	[enable_quartz=$enableval],[enable_quartz=maybe])
+AS_IF([test "x$enable_quartz" != xno], [
+	AS_IF([test $have_coregraphics = yes], [
+		AC_DEFINE([ENABLE_QUARTZ], 1,
+			[Define to 1 to enable Quartz Display Services method])
+		AC_MSG_RESULT([yes])
+		enable_quartz=yes
+	], [
+		AC_MSG_RESULT([missing dependencies])
+		AS_IF([test "x$enable_quartz" = xyes], [
+			AC_MSG_ERROR([missing CoreGraphics framework for Quartz Display Services method])
+		])
+		enable_quartz=no
+	])
+], [
+	AC_MSG_RESULT([no])
+	enable_quartz=no
+])
+AM_CONDITIONAL([ENABLE_QUARTZ], [test "x$enable_quartz" = xyes])
 
 # Check Geoclue location provider
 AC_MSG_CHECKING([whether to enable Geoclue location provider])
@@ -194,6 +222,7 @@ echo "
     RANDR:		${enable_randr}
     VidMode:		${enable_vidmode}
     WinGDI:		${enable_wingdi}
+    Quartz:		${enable_quartz}
 
     Location providers:
     Geoclue:		${enable_geoclue}
