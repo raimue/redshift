@@ -93,7 +93,7 @@ quartz_restore(quartz_state_t *state)
 
 int
 quartz_set_temperature(quartz_state_t *state, int temp, float brightness,
-		       float gamma[3])
+		       const float gamma[3])
 {
 	float coeff[3];
 
