@@ -101,7 +101,7 @@ quartz_set_temperature(quartz_state_t *state, int temp, float brightness,
 	CGGammaValue * greenTable = malloc(sizeof(CGGammaValue) * state->capacity);
 	CGGammaValue * blueTable = malloc(sizeof(CGGammaValue) * state->capacity);
 
-	get_coefficient(coeff, temp, brightness);
+	colorramp_get_coefficient(coeff, temp, brightness);
 
 	for (int i = 0; i < state->capacity; i++) {
 		redTable[i]   = state->savedRedTable[i] * coeff[0];
